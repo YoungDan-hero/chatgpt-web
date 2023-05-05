@@ -9,9 +9,9 @@ export function defaultState(): Chat.ChatState {
 
 export function getLocalState(): Chat.ChatState {
   const localState = ss.get(LOCAL_NAME)
-  if (localState && localState.network === undefined) {
+  if (localState && localState.network === undefined)
     localState.network = true
-  }
+
   return localState ?? defaultState()
 }
 

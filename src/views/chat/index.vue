@@ -1,10 +1,9 @@
 <script setup lang='ts'>
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
-import { NButton, NInput, useDialog, useMessage } from 'naive-ui'
+import { NAutoComplete, NButton, NInput, useDialog, useMessage } from 'naive-ui'
 import html2canvas from 'html2canvas'
 import { storeToRefs } from 'pinia'
-import { NAutoComplete} from 'naive-ui'
 import { Message } from './components'
 import { useScroll } from './hooks/useScroll'
 import { useChat } from './hooks/useChat'
@@ -53,7 +52,7 @@ function handleSubmit() {
 }
 
 async function onConversation() {
-  let message = prompt.value
+  const message = prompt.value
 
   if (loading.value)
     return
@@ -79,7 +78,7 @@ async function onConversation() {
   loading.value = true
   prompt.value = ''
 
-  let options: Chat.ConversationRequest = { conversationId: usingContext.value ? window.location.hash : Math.random().toString() }
+  const options: Chat.ConversationRequest = { conversationId: usingContext.value ? window.location.hash : Math.random().toString() }
   // const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
 
   // if (lastContext && usingContext.value)
@@ -106,17 +105,16 @@ async function onConversation() {
       signal: controller.signal,
       network: !!chatStore.getEnabledNetwork,
       onDownloadProgress: ({ event }) => {
-        debugger;
         const xhr = event.target
         const { responseText } = xhr
         // Always process the final line
         // const lastIndex = responseText.lastIndexOf('\n')
-        let chunk = responseText
+        const chunk = responseText
         // if (lastIndex !== -1)
         //   chunk = responseText.substring(lastIndex)
         try {
           // const data = JSON.parse(chunk)
-          debugger;
+
           updateChat(
             +uuid,
             dataSources.value.length - 1,
@@ -136,10 +134,10 @@ async function onConversation() {
           //
         }
       },
-    });
+    })
   }
   catch (error: any) {
-    const errorMessage = error?.text ??  t('common.wrong')
+    const errorMessage = error?.text ?? t('common.wrong')
 
     if (error.text === 'canceled') {
       updateChatSome(
@@ -189,7 +187,6 @@ async function onConversation() {
 }
 
 async function onRegenerate(index: number) {
-  debugger;
   if (loading.value)
     return
 
@@ -197,7 +194,7 @@ async function onRegenerate(index: number) {
 
   const { requestOptions } = dataSources.value[index]
 
-  let message = requestOptions?.prompt ?? ''
+  const message = requestOptions?.prompt ?? ''
 
   let options: Chat.ConversationRequest = {}
 
@@ -219,7 +216,7 @@ async function onRegenerate(index: number) {
       requestOptions: { prompt: message, ...options },
     },
   )
-// debugger;
+
   try {
     await fetchChatAPIProcess<Chat.ConversationResponse>({
       prompt: message,
@@ -231,9 +228,9 @@ async function onRegenerate(index: number) {
         const { responseText } = xhr
         // Always process the final line
         // const lastIndex = responseText.lastIndexOf('\n')
-        let chunk = responseText;
+        const chunk = responseText
         // if (lastIndex !== -1)
-          // chunk = responseText.substring(lastIndex)
+        // chunk = responseText.substring(lastIndex)
         try {
           // const data = JSON.parse(chunk)
           updateChat(
@@ -255,7 +252,7 @@ async function onRegenerate(index: number) {
           //
         }
       },
-    });
+    })
   }
   catch (error: any) {
     if (error.text === 'canceled') {
@@ -349,7 +346,7 @@ function handleDelete(index: number) {
 }
 
 function handleClear() {
-  chatStore.toggleNetwork();
+  chatStore.toggleNetwork()
 }
 
 function handleEnter(event: KeyboardEvent) {
@@ -424,6 +421,10 @@ onUnmounted(() => {
   if (loading.value)
     controller.abort()
 })
+
+const handleClick = (e: any) => {
+  prompt.value = e.target.innerText
+}
 </script>
 
 <template>
@@ -446,81 +447,185 @@ onUnmounted(() => {
           :class="[isMobile ? 'p-2' : 'p-4']"
         >
           <template v-if="!dataSources.length">
-            <div class="flex items-center flex-col justify-center mt-4 text-center ">
-              <SvgIcon icon="ri:bubble-chart-fill" class="mr-2 text-3xl" />
-              <div>永久免费提供学习和测试，支持上下文，支持开启关闭联网模式，支持保存会话，切勿发布至国内平台或微信分享</div>
-              <div>被举报了，chat.binjie.site域名的dns被运营商污染了。。60%以上地区无法访问</div>
-              <div>可以访问境内镜像： https://chat1.binjie.site:7777 或者chat2,chat3,一直到9</div>
-              <div>还可以访问 cloudflare托管的 https://chat.yqcloud.top/</div>
-              <div></div>
-              <div>如果你觉得做的好，可以给我买一瓶冰阔落</div>
+            <div class="yd-top">
+              ChatGpt
+            </div>
+
+            <div v-if="!isMobile" class="yd-spe">
               <div>
-                <img src="https://store-cbj.oss-cn-beijing.aliyuncs.com/kele.jpg" width="200" height="100" alt="kele">
+                <h2 class="m-auto flex items-center gap-3 text-lg font-normal md:flex-col md:gap-2">
+                  <svg stroke="currentColor" fill="none" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><circle cx="12" cy="12" r="5" /><line x1="12" y1="1" x2="12" y2="3" /><line x1="12" y1="21" x2="12" y2="23" /><line x1="4.22" y1="4.22" x2="5.64" y2="5.64" /><line x1="18.36" y1="18.36" x2="19.78" y2="19.78" /><line x1="1" y1="12" x2="3" y2="12" /><line x1="21" y1="12" x2="23" y2="12" /><line x1="4.22" y1="19.78" x2="5.64" y2="18.36" /><line x1="18.36" y1="5.64" x2="19.78" y2="4.22" /></svg>Examples
+                </h2>
+
+                <div class="notice-item">
+                  <div @click="handleClick">
+                    "解释一下什么是量子计算"
+                  </div>
+
+                  <div @click="handleClick">
+                    "用JS实现冒泡排序"
+                  </div>
+
+                  <div @click="handleClick">
+                    "帮我设计一份生日派对计划书"
+                  </div>
+                </div>
               </div>
+
+              <div>
+                <h2 class="m-auto flex items-center gap-3 text-lg font-normal md:flex-col md:gap-2">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" class="h-6 w-6"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" /></svg>Capabilities
+                </h2>
+
+                <div class="notice-item">
+                  <div>
+                    可以为用户提供连续对话
+                  </div>
+
+                  <div>
+                    允许用户提供后续更正
+                  </div>
+
+                  <div>
+                    主动拒绝不适宜对话
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 class="m-auto flex items-center gap-3 text-lg font-normal md:flex-col md:gap-2">
+                  <svg stroke="currentColor" fill="none" stroke-width="1.5" viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>Limitations
+                </h2>
+
+                <div class="notice-item">
+                  <div>
+                    可能偶尔会产生不正确的信息
+                  </div>
+
+                  <div>
+                    可能偶尔会产生有偏见的内容
+                  </div>
+
+                  <div>
+                    可能对最新的互联网内容不熟悉
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div v-else style="display: flex;align-items: center;justify-content: center;margin-top: 50px;font-weight: bold">
+              在下面输入框输入你想询问的问题
             </div>
           </template>
           <template v-else>
-              <Message
-                v-for="(item, index) of dataSources"
-                :key="index"
-                :date-time="item.dateTime"
-                :text="item.text"
-                :inversion="item.inversion"
-                :error="item.error"
-                :loading="item.loading"
-                @regenerate="onRegenerate(index)"
-                @delete="handleDelete(index)"
-              />
-              <div class="sticky bottom-0 left-0 flex justify-center">
-                <NButton v-if="loading" type="warning" @click="handleStop">
-                  <template #icon>
-                    <SvgIcon icon="ri:stop-circle-line" />
-                  </template>
-                  Stop Responding
-                </NButton>
-              </div>
-
+            <Message
+              v-for="(item, index) of dataSources"
+              :key="index"
+              :date-time="item.dateTime"
+              :text="item.text"
+              :inversion="item.inversion"
+              :error="item.error"
+              :loading="item.loading"
+              @regenerate="onRegenerate(index)"
+              @delete="handleDelete(index)"
+            />
+            <div class="sticky bottom-0 left-0 flex justify-center">
+              <NButton v-if="loading" type="warning" @click="handleStop">
+                <template #icon>
+                  <SvgIcon icon="ri:stop-circle-line" />
+                </template>
+                Stop Responding
+              </NButton>
+            </div>
           </template>
         </div>
       </div>
     </main>
     <footer :class="footerClass">
       <div class="flex items-center justify-between space-x-2">
-        <HoverButton tooltip="点击关闭或开启联网功能，开启后会自动从互联网获得信息来回答您，关闭联网能极大加快响应速度">
-            <span class="text-xl text-[#4f555e]" @click="handleClear">
-              <!-- <SvgIcon icon="ri:delete-bin-line" /> -->
-              <span style="color: #2979ff; width: 56px; display: inline-block;" v-if="getEnabledNetwork">联网开启</span>
-              <span style="color: red; width: 56px; display: inline-block;" v-if="!getEnabledNetwork">联网关闭</span>
+        <HoverButton :tooltip="getEnabledNetwork ? '点击关闭联网功能，关闭联网能极大加快响应速度' : '点击开启联网功能，开启后会自动从互联网获得信息来回答您，关闭联网能极大加快响应速度'">
+          <div class="text-xl text-[#4f555e] earth" @click="handleClear">
+            <div v-if="getEnabledNetwork" class="enabledNetwork">
+              🌏
+            </div>
+            <div v-if="!getEnabledNetwork" class="abledNetwork">
+              🌏
+            </div>
+          </div>
+        </HoverButton>
+        <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
+          <template #default="{ handleInput, handleBlur, handleFocus }">
+            <NInput
+              v-model:value="prompt" type="textarea" :placeholder="placeholder"
+              :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
+            />
+          </template>
+        </NAutoComplete>
+        <HoverButton v-if="!isMobile" @click="handleExport">
+          <span class="text-xl text-[#4f555e] dark:text-white">
+            <SvgIcon icon="ri:download-2-line" />
+          </span>
+        </HoverButton>
+        <HoverButton v-if="!isMobile" @click="toggleUsingContext">
+          <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
+            <SvgIcon icon="ri:chat-history-line" />
+          </span>
+        </HoverButton>
+        <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
+          <template #icon>
+            <span class="dark:text-black">
+              <SvgIcon icon="ri:send-plane-fill" />
             </span>
-          </HoverButton>
-          <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
-            <template #default="{ handleInput, handleBlur, handleFocus }">
-              <NInput
-                v-model:value="prompt" type="textarea" :placeholder="placeholder"
-                :autosize="{ minRows: 1, maxRows: 2 }" @input="handleInput" @focus="handleFocus" @blur="handleBlur" @keypress="handleEnter"
-              />
-            </template>
-          </NAutoComplete>
-          <HoverButton v-if="!isMobile" @click="handleExport">
-            <span class="text-xl text-[#4f555e] dark:text-white">
-              <SvgIcon icon="ri:download-2-line" />
-            </span>
-          </HoverButton>
-        
-          
-          <HoverButton v-if="!isMobile" @click="toggleUsingContext">
-            <span class="text-xl" :class="{ 'text-[#4b9e5f]': usingContext, 'text-[#a8071a]': !usingContext }">
-              <SvgIcon icon="ri:chat-history-line" />
-            </span>
-          </HoverButton>
-          <NButton type="primary" :disabled="buttonDisabled" @click="handleSubmit">
-            <template #icon>
-              <span class="dark:text-black">
-                <SvgIcon icon="ri:send-plane-fill" />
-              </span>
-            </template>
-          </NButton>
+          </template>
+        </NButton>
       </div>
     </footer>
   </div>
 </template>
+
+<style scoped>
+.yd-top {
+    margin-top: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.yd-spe {
+    margin-top: 100px;
+    display: flex;
+
+    justify-content: space-around;
+}
+
+.notice-item div {
+    cursor: pointer;
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 5px;
+    background-color: rgb(247,247,248);
+    font-weight: bold;
+}
+
+.earth div{
+    width: 15px;
+    height: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: rgb(247,247,248);
+    font-size: 16px;
+
+}
+
+.enabledNetwork {
+    box-shadow: 0 0 20px 6px #00FF00;
+}
+
+.abledNetwork {
+    box-shadow: 0 0 20px 6px red;
+}
+</style>

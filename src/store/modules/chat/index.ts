@@ -7,7 +7,7 @@ export const useChatStore = defineStore('chat-store', {
 
   getters: {
     getEnabledNetwork(state) {
-      return state.network === true;
+      return state.network === false
     },
     getChatHistoryByCurrentActive(state: Chat.ChatState) {
       const index = state.history.findIndex(item => item.uuid === state.active)
@@ -27,13 +27,7 @@ export const useChatStore = defineStore('chat-store', {
 
   actions: {
     toggleNetwork() {
-      debugger;
-      this.network = !this.network;
-      // this.reloadRoute()
-      // if (this.getChatHistoryByCurrentActive) {
-        // this.getChatHistoryByCurrentActive.network = !this.getChatHistoryByCurrentActive.network;
-      // }
-      
+      this.network = !this.network
     },
     addHistory(history: Chat.History, chatData: Chat.Chat[] = []) {
       this.history.unshift(history)

@@ -47,6 +47,7 @@ const wrapClass = computed(() => {
 
 const text = computed(() => {
   const value = props.text ?? ''
+
   if (!props.inversion)
     return mdi.render(value)
   return value

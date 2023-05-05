@@ -38,13 +38,14 @@ export default defineConfig((env) => {
         },
       },
     },
+    base: './',
     build: {
       rollupOptions: {
         // input: 'src/main.js', // 指定入口文件路径
         output: {
           format: 'iife', // 指定输出格式为立即执行函数（Immediately Invoked Function Expression）
-          inlineDynamicImports: true // 将动态import转换为具体实现的代码，避免异步加载
-        }
+          inlineDynamicImports: true, // 将动态import转换为具体实现的代码，避免异步加载
+        },
       },
       reportCompressedSize: false,
       sourcemap: false,

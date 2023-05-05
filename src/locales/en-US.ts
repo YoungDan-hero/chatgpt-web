@@ -38,7 +38,6 @@ export default {
   setting: {
     setting: 'Setting',
     general: 'General',
-    config: 'Config',
     avatarLink: 'Avatar Link',
     name: 'Name',
     description: 'Description',
