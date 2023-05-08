@@ -12,11 +12,11 @@ const show = ref(false)
     <div class="flex-1 flex-shrink-0 overflow-hidden">
       <UserAvatar />
     </div>
-    <HoverButton :tooltip="$t('setting.setting')" @click="show = true">
-      <span class="text-xl text-[#4f555e] dark:text-white">
-        <SvgIcon icon="ri:settings-4-line" />
-      </span>
-    </HoverButton>
+<!--    <HoverButton :tooltip="$t('setting.setting')" @click="show = true">-->
+<!--      <span class="text-xl text-[#4f555e] dark:text-white">-->
+<!--        <SvgIcon icon="ri:settings-4-line" />-->
+<!--      </span>-->
+<!--    </HoverButton>-->
 
     <Setting v-if="show" v-model:visible="show" />
   </footer>

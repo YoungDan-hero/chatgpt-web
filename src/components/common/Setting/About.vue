@@ -1,7 +1,6 @@
 <script setup lang='ts'>
 import { onMounted, ref } from 'vue'
 import { NSpin } from 'naive-ui'
-import { fetchChatConfig } from '@/api'
 import pkg from '@/../package.json'
 
 interface ConfigState {
@@ -17,17 +16,15 @@ const config = ref<ConfigState>()
 
 async function fetchConfig() {
   try {
-    loading.value = true
-    const { data } = await fetchChatConfig<ConfigState>()
-    config.value = data
+
   }
   finally {
-    loading.value = false
+
   }
 }
 
 onMounted(() => {
-  fetchConfig()
+
 })
 </script>
 

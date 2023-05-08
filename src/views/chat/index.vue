@@ -79,10 +79,6 @@ async function onConversation() {
   prompt.value = ''
 
   const options: Chat.ConversationRequest = { conversationId: usingContext.value ? window.location.hash : Math.random().toString() }
-  // const lastContext = conversationList.value[conversationList.value.length - 1]?.conversationOptions
-
-  // if (lastContext && usingContext.value)
-  //   options = { ...lastContext }
 
   addChat(
     +uuid,
@@ -101,26 +97,17 @@ async function onConversation() {
   try {
     await fetchChatAPIProcess<Chat.ConversationResponse>({
       prompt: message,
-      options,
       signal: controller.signal,
-      network: !!chatStore.getEnabledNetwork,
       onDownloadProgress: ({ event }) => {
         const xhr = event.target
         const { responseText } = xhr
-        // Always process the final line
-        // const lastIndex = responseText.lastIndexOf('\n')
-        const chunk = responseText
-        // if (lastIndex !== -1)
-        //   chunk = responseText.substring(lastIndex)
         try {
-          // const data = JSON.parse(chunk)
-
           updateChat(
             +uuid,
             dataSources.value.length - 1,
             {
               dateTime: new Date().toLocaleString(),
-              text: chunk ?? '',
+              text: responseText ?? '',
               inversion: false,
               error: false,
               loading: false,
@@ -220,25 +207,17 @@ async function onRegenerate(index: number) {
   try {
     await fetchChatAPIProcess<Chat.ConversationResponse>({
       prompt: message,
-      options,
-      network: !!chatStore.getEnabledNetwork,
       signal: controller.signal,
       onDownloadProgress: ({ event }) => {
         const xhr = event.target
         const { responseText } = xhr
-        // Always process the final line
-        // const lastIndex = responseText.lastIndexOf('\n')
-        const chunk = responseText
-        // if (lastIndex !== -1)
-        // chunk = responseText.substring(lastIndex)
         try {
-          // const data = JSON.parse(chunk)
           updateChat(
             +uuid,
             dataSources.value.length - 1,
             {
               dateTime: new Date().toLocaleString(),
-              text: chunk ?? '',
+              text: responseText ?? '',
               inversion: false,
               error: false,
               loading: false,
@@ -543,16 +522,6 @@ const handleClick = (e: any) => {
     </main>
     <footer :class="footerClass">
       <div class="flex items-center justify-between space-x-2">
-        <HoverButton :tooltip="getEnabledNetwork ? '点击关闭联网功能，关闭联网能极大加快响应速度' : '点击开启联网功能，开启后会自动从互联网获得信息来回答您，关闭联网能极大加快响应速度'">
-          <div class="text-xl text-[#4f555e] earth" @click="handleClear">
-            <div v-if="getEnabledNetwork" class="enabledNetwork">
-              🌏
-            </div>
-            <div v-if="!getEnabledNetwork" class="abledNetwork">
-              🌏
-            </div>
-          </div>
-        </HoverButton>
         <NAutoComplete v-model:value="prompt" :options="searchOptions" :render-label="renderOption">
           <template #default="{ handleInput, handleBlur, handleFocus }">
             <NInput
