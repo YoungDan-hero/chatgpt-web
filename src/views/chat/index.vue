@@ -15,7 +15,7 @@ import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { useChatStore, usePromptStore } from '@/store'
 import { fetchChatAPIProcess } from '@/api'
 import { t } from '@/locales'
-
+import { isTelephoneNumberWhitelist } from '@/utils/functions'
 let controller = new AbortController()
 
 // const openLongReply = import.meta.env.VITE_GLOB_OPEN_LONG_REPLY === 'true'
@@ -46,9 +46,19 @@ const loading = ref<boolean>(false)
 const promptStore = usePromptStore()
 // 使用storeToRefs，保证store修改后，联想部分能够重新渲染
 const { promptList: promptTemplate } = storeToRefs<any>(promptStore)
+const isCanView = () => {
+  const number = localStorage.getItem('TEL')
+  if (!isTelephoneNumberWhitelist(number)) {
+    ms.error('您无权访问此网页')
+    location.reload()
+    return false
+  }
 
+  return true
+}
 function handleSubmit() {
-  onConversation()
+  if (isCanView())
+    onConversation()
 }
 
 async function onConversation() {
@@ -174,95 +184,97 @@ async function onConversation() {
 }
 
 async function onRegenerate(index: number) {
-  if (loading.value)
-    return
-
-  controller = new AbortController()
-
-  const { requestOptions } = dataSources.value[index]
-
-  const message = requestOptions?.prompt ?? ''
-
-  let options: Chat.ConversationRequest = {}
-
-  if (requestOptions.options)
-    options = { ...requestOptions.options }
-
-  loading.value = true
-
-  updateChat(
-    +uuid,
-    index,
-    {
-      dateTime: new Date().toLocaleString(),
-      text: '',
-      inversion: false,
-      error: false,
-      loading: true,
-      conversationOptions: null,
-      requestOptions: { prompt: message, ...options },
-    },
-  )
-
-  try {
-    await fetchChatAPIProcess<Chat.ConversationResponse>({
-      prompt: message,
-      signal: controller.signal,
-      onDownloadProgress: ({ event }) => {
-        const xhr = event.target
-        const { responseText } = xhr
-        try {
-          updateChat(
-            +uuid,
-            dataSources.value.length - 1,
-            {
-              dateTime: new Date().toLocaleString(),
-              text: responseText ?? '',
-              inversion: false,
-              error: false,
-              loading: false,
-              conversationOptions: { },
-              requestOptions: { prompt: message, options: { ...options } },
-            },
-          )
-          scrollToBottom()
-        }
-        catch (error) {
-          //
-        }
-      },
-    })
-  }
-  catch (error: any) {
-    if (error.text === 'canceled') {
-      updateChatSome(
-        +uuid,
-        index,
-        {
-          loading: false,
-        },
-      )
+  if (isCanView()) {
+    if (loading.value)
       return
-    }
 
-    const errorMessage = error?.text ?? t('common.wrong')
+    controller = new AbortController()
+
+    const { requestOptions } = dataSources.value[index]
+
+    const message = requestOptions?.prompt ?? ''
+
+    let options: Chat.ConversationRequest = {}
+
+    if (requestOptions.options)
+      options = { ...requestOptions.options }
+
+    loading.value = true
 
     updateChat(
       +uuid,
       index,
       {
         dateTime: new Date().toLocaleString(),
-        text: errorMessage,
+        text: '',
         inversion: false,
-        error: true,
-        loading: false,
+        error: false,
+        loading: true,
         conversationOptions: null,
         requestOptions: { prompt: message, ...options },
       },
     )
-  }
-  finally {
-    loading.value = false
+
+    try {
+      await fetchChatAPIProcess<Chat.ConversationResponse>({
+        prompt: message,
+        signal: controller.signal,
+        onDownloadProgress: ({ event }) => {
+          const xhr = event.target
+          const { responseText } = xhr
+          try {
+            updateChat(
+              +uuid,
+              dataSources.value.length - 1,
+              {
+                dateTime: new Date().toLocaleString(),
+                text: responseText ?? '',
+                inversion: false,
+                error: false,
+                loading: false,
+                conversationOptions: { },
+                requestOptions: { prompt: message, options: { ...options } },
+              },
+            )
+            scrollToBottom()
+          }
+          catch (error) {
+            //
+          }
+        },
+      })
+    }
+    catch (error: any) {
+      if (error.text === 'canceled') {
+        updateChatSome(
+          +uuid,
+          index,
+          {
+            loading: false,
+          },
+        )
+        return
+      }
+
+      const errorMessage = error?.text ?? t('common.wrong')
+
+      updateChat(
+        +uuid,
+        index,
+        {
+          dateTime: new Date().toLocaleString(),
+          text: errorMessage,
+          inversion: false,
+          error: true,
+          loading: false,
+          conversationOptions: null,
+          requestOptions: { prompt: message, ...options },
+        },
+      )
+    }
+    finally {
+      loading.value = false
+    }
   }
 }
 
